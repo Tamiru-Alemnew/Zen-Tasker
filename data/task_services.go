@@ -35,13 +35,14 @@ func CreateTask(task models.Task) models.Task {
 }
 
 
-func UpdateTask(task models.Task) (models.Task, error) {
-	_, exists := tasks[task.ID]
-	if !exists {
-		return models.Task{}, errors.New("task not found")
-	}
-	tasks[task.ID] = task
-	return task, nil
+func UpdateTask(id int, newTask models.Task) (models.Task, error) {
+    _, exists := tasks[id]
+    if !exists {
+        return models.Task{}, errors.New("task not found")
+    }
+    newTask.ID = id
+    tasks[id] = newTask
+    return newTask, nil
 }
 
 func DeleteTask(id int) error {

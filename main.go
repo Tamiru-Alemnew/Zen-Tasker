@@ -1,7 +1,7 @@
 package main
 
 import (
-    "task_manager/router"
+    "github.com/Tamiru-Alemnew/task-manager/router"
 )
 
 func main() {
