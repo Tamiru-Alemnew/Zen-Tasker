@@ -1,16 +1,16 @@
 package router
 
 import (
+	"github.com/Tamiru-Alemnew/task-manager/controllers"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(){
-	router := gin.Default()
-
-	router.GET("/tasks", GetTasks)
-	router.GET("/tasks/:id", GetTask)
-	router.POST("/tasks", CreateTask)
-	router.PUT("/tasks/:id", UpdateTask)
-	router.DELETE("/tasks/:id", DeleteTask)
-
+func SetupRouter() *gin.Engine {
+    r := gin.Default()
+    r.GET("/tasks", controllers.GetTasks)
+    r.GET("/tasks/:id", controllers.GetTask)
+    r.POST("/tasks", controllers.CreateTask)
+    r.PUT("/tasks/:id", controllers.UpdateTask)
+    r.DELETE("/tasks/:id", controllers.DeleteTask)
+    return r
 }
