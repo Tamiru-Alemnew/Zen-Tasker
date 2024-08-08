@@ -3,47 +3,123 @@
 ## Endpoints
 
 ### GET /tasks
-- Retrieves a list of all tasks.
-- Response:
-  - 200 OK: Returns an array of tasks.
+  - **Status:** `200 OK`
+  - **Body:**
+
+    ```json
+    [
+      {
+        "id": "uuid",
+        "title": "string",
+        "description": "string",
+        "dueDate": "string ",
+        "status": "string",
+      }
+    ]
+    ```
 
 ### GET /tasks/:id
 - Retrieves the details of a specific task.
-- Parameters:
-  - id (path): Task ID
-- Response:
-  - 200 OK: Returns the task details.
-  - 404 Not Found: Task not found.
+
+  **URL:** `/tasks/{id}`
+
+  **Method:** `GET`
+
+  **Path Parameters:**
+
+  - `id` : The ID of the task to retrieve.
+
+  **Response:**
+
+  - **Status:** `200 OK`
+  - **Body:**
+
+      ```json
+      {
+        "id": "uuid",
+        "title": "string",
+        "description": "string",
+        "dueDate": "string ",
+        "status": "string",
+      }
+      ```
+  **Errors:**
+
+  - `400 Bad Request`: Invalid task ID.
+  - `404 Not Found`: Task not found.
 
 ### POST /tasks
 - Creates a new task.
-- Request body:
-  - title (string): Task title
-  - description (string): Task description
-  - due_date (string): Task due date
-  - status (string): Task status
-- Response:
-  - 201 Created: Returns the created task.
-  - 400 Bad Request: Invalid request payload.
+
+  **URL:** `/tasks`
+
+  **Method:** `POST`
+
+  **Request Body:**
+
+    ```json
+    {
+      "title": "string",
+      "description": "string",
+      "dueDate": "string ",
+      "status": "string"
+    }
+    ```
+
+  **Response:**
+
+  - **Status:** `201 Created` : Task successfully created.
+
+  **Errors:**
+
+  - `400 Bad Request`: Invalid request payload.
 
 ### PUT /tasks/:id
 - Updates a specific task.
-- Parameters:
-  - id (path): Task ID
-- Request body:
-  - title (string): Task title
-  - description (string): Task description
-  - due_date (string): Task due date
-  - status (string): Task status
-- Response:
-  - 200 OK: Returns the updated task.
-  - 400 Bad Request: Invalid request payload.
-  - 404 Not Found: Task not found.
+  **URL:** `/tasks/{id}`
+
+  **Method:** `PUT`
+
+  **Parameter:**
+
+  - `id`: The ID of the task to update.
+
+  **Request Body:**
+
+    ```json
+    {
+      "title": "string",
+      "description": "string",
+      "dueDate": "string ",
+      "status": "string"
+    }
+    ```
+
+  **Response:**
+
+  - **Status:** `200 OK`
+
+  **Errors:**
+
+  - `400 Bad Request`: Invalid task ID.
+  - `404 Not Found`: Task not found.
+
 
 ### DELETE /tasks/:id
 - Deletes a specific task.
-- Parameters:
-  - id (path): Task ID
-- Response:
-  - 204 No Content: Task successfully deleted.
-  - 404 Not Found: Task not found.
+  **URL:** `/tasks/{id}`
+
+  **Method:** `DELETE`
+
+  **Path Parameters:**
+
+  - `id`: The ID of the task to delete.
+
+  **Response:**
+
+  - **Status:** `200 OK`
+
+  **Errors:**
+
+  - `400 Bad Request`: Invalid task ID.
+  - `404 Not Found`: Task not found.
