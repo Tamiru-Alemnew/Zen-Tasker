@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/Tamiru-Alemnew/task-manager/data"
 	"github.com/Tamiru-Alemnew/task-manager/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -20,9 +19,10 @@ var (
 )
 
 func InitMongoDB(mongoURI string) {
-    clientOptions := options.Client().ApplyURI(mongoURI)
-    var err error
-    client, err = mongo.Connect(context.TODO(), clientOptions)
+
+    clientOptions :=options.Client().ApplyURI(mongoURI)
+    client, err := mongo.Connect(context.TODO(), clientOptions)
+
     if err != nil {
         log.Fatal(err)
     }
@@ -34,6 +34,7 @@ func InitMongoDB(mongoURI string) {
 
     taskCollection = client.Database("taskmanager").Collection("tasks")
 }
+
 
 func DisconnectMongoDB() error {
     if client == nil {
@@ -96,7 +97,7 @@ func CreateTask(task models.Task) (models.Task, error) {
 func UpdateTask(id int, newTask models.Task) (models.Task, error) {
     filter := bson.D{primitive.E{Key: "id", Value: id}}
     update := bson.D{primitive.E{Key: "$set", Value: newTask}}
-    result, err := data.TaskCollection.UpdateOne(context.TODO(), filter, update)
+    result, err := taskCollection.UpdateOne(context.TODO(), filter, update)
     if err != nil {
         return models.Task{}, err
     }
@@ -108,7 +109,7 @@ func UpdateTask(id int, newTask models.Task) (models.Task, error) {
 
 func DeleteTask(id int) error {
     filter := bson.D{primitive.E{Key: "id", Value: id}}
-    result, err := data.TaskCollection.DeleteOne(context.TODO(), filter)
+    result, err :=taskCollection.DeleteOne(context.TODO(), filter)
     if err != nil {
         return err
     }
