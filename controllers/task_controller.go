@@ -9,9 +9,14 @@ import (
 )
 
 func GetTasks(c *gin.Context) {
-    tasks := data.GetAllTasks()
+    tasks, err := data.GetAllTasks()
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
     c.JSON(http.StatusOK, tasks)
 }
+
 
 func GetTask(c *gin.Context) {
     id, err := strconv.Atoi(c.Param("id"))
@@ -33,7 +38,12 @@ func CreateTask(c *gin.Context) {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
-    createdTask := data.CreateTask(task)
+    createdTask , err := data.CreateTask(task)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+    
     c.JSON(http.StatusCreated, createdTask)
 }
 
