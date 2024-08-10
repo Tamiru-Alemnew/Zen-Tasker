@@ -13,44 +13,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var (
-    taskCollection *mongo.Collection
-    client         *mongo.Client
-)
-
-func InitMongoDB(mongoURI string) {
-
-    clientOptions :=options.Client().ApplyURI(mongoURI)
-    client, err := mongo.Connect(context.TODO(), clientOptions)
-
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    err = client.Ping(context.TODO(), nil)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    taskCollection = client.Database("taskmanager").Collection("tasks")
-}
-
-
-func DisconnectMongoDB() error {
-    if client == nil {
-        return errors.New("no MongoDB client to disconnect")
-    }
-    err := client.Disconnect(context.TODO())
-    if err != nil {
-        return err
-    }
-    client = nil
-    return nil
-}
 
 func GetAllTasks() ([]models.Task, error) {
     var tasks []models.Task
-    cursor, err := taskCollection.Find(context.TODO(), bson.D{})
+    cursor, err := TaskCollection.Find(context.TODO(), bson.D{})
     if err != nil {
         return nil, err
     }
@@ -75,7 +41,7 @@ func GetAllTasks() ([]models.Task, error) {
 func GetTaskByID(id int) (models.Task, error) {
     var task models.Task
     filter := bson.D{primitive.E{Key: "id", Value: id}}
-    err := taskCollection.FindOne(context.TODO(), filter).Decode(&task)
+    err := TaskCollection.FindOne(context.TODO(), filter).Decode(&task)
     if err != nil {
         if err == mongo.ErrNoDocuments {
             return models.Task{}, errors.New("task not found")
@@ -87,7 +53,7 @@ func GetTaskByID(id int) (models.Task, error) {
 
 func CreateTask(task models.Task) (models.Task, error) {
     task.ID = int(time.Now().UnixNano())
-    _, err := taskCollection.InsertOne(context.TODO(), task)
+    _, err := TaskCollection.InsertOne(context.TODO(), task)
     if err != nil {
         return models.Task{}, err
     }
@@ -97,7 +63,7 @@ func CreateTask(task models.Task) (models.Task, error) {
 func UpdateTask(id int, newTask models.Task) (models.Task, error) {
     filter := bson.D{primitive.E{Key: "id", Value: id}}
     update := bson.D{primitive.E{Key: "$set", Value: newTask}}
-    result, err := taskCollection.UpdateOne(context.TODO(), filter, update)
+    result, err := TaskCollection.UpdateOne(context.TODO(), filter, update)
     if err != nil {
         return models.Task{}, err
     }
@@ -109,7 +75,7 @@ func UpdateTask(id int, newTask models.Task) (models.Task, error) {
 
 func DeleteTask(id int) error {
     filter := bson.D{primitive.E{Key: "id", Value: id}}
-    result, err :=taskCollection.DeleteOne(context.TODO(), filter)
+    result, err :=TaskCollection.DeleteOne(context.TODO(), filter)
     if err != nil {
         return err
     }
