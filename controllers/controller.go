@@ -79,3 +79,41 @@ func DeleteTask(c *gin.Context) {
     }
     c.Status(http.StatusNoContent)
 }
+
+
+func SignUp(c *gin.Context){
+    var user models.User
+
+    if err := c.ShouldBindBodyWithJSON(&user) ; err!= nil {
+        c.JSON(http.StatusBadRequest , err)
+        return 
+    }
+
+    user , err := data.UserRegistration(user)
+
+    if err != nil {
+        c.JSON(http.StatusBadRequest , err)
+        return 
+    }
+
+    c.JSON(201, gin.H{"message": "Signup successful"})
+}
+
+func Login(c *gin.Context){
+    var user models.User
+
+    err := c.ShouldBindJSON(&user)
+
+     if err != nil {
+        c.JSON(http.StatusBadRequest , err)
+        return 
+    }
+    
+    user , err = data.UserLogin(user)
+     if err != nil {
+        c.JSON(http.StatusBadRequest , err)
+        return 
+    }
+
+    c.JSON(200 , gin.H{"message": "User logged in successfully"})
+}

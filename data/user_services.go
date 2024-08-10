@@ -26,7 +26,15 @@ func UserRegistration(user models.User)(models.User , error){
 }
 
 func UserLogin(user models.User)(models.User , error){
-	filter = bson.D{primitive.E{Key: "username", Value: user.Username}}
-	
+	var logedinUser models.User
+	filter := bson.D{primitive.E{Key: "username", Value: user.Username}}
+
+	err := UserCollection.FindOne(context.TODO() , filter).Decode(&logedinUser)
+
+	if err != nil {
+		return models.User{} , err
+	}
+
+	return logedinUser , nil
 
 }
