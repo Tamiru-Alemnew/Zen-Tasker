@@ -1,11 +1,13 @@
 package controllers
 
 import (
-    "net/http"
-    "strconv"
-    "github.com/Tamiru-Alemnew/task-manager/data"
-    "github.com/Tamiru-Alemnew/task-manager/models"
-    "github.com/gin-gonic/gin"
+	"go/token"
+	"net/http"
+	"strconv"
+
+	"github.com/Tamiru-Alemnew/task-manager/data"
+	"github.com/Tamiru-Alemnew/task-manager/models"
+	"github.com/gin-gonic/gin"
 )
 
 func GetTasks(c *gin.Context) {
@@ -89,7 +91,7 @@ func SignUp(c *gin.Context){
         return 
     }
 
-    user , err := data.UserRegistration(user)
+    err := data.UserRegistration(user)
 
     if err != nil {
         c.JSON(http.StatusBadRequest , err)
@@ -109,11 +111,11 @@ func Login(c *gin.Context){
         return 
     }
     
-    user , err = data.UserLogin(user)
+    jwtToken , err := data.UserCredentialValidation(user)
      if err != nil {
         c.JSON(http.StatusBadRequest , err)
         return 
     }
 
-    c.JSON(200 , gin.H{"message": "User logged in successfully"})
+    c.JSON(200, gin.H{"message": "User logged in successfully", "token": jwtToken})
 }

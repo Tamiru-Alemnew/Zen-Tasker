@@ -7,6 +7,7 @@ import (
 
 func SetupRouter() *gin.Engine {
     r := gin.Default()
+    r.POST("/signup" , controllers.SignUp)
     r.GET("/tasks", controllers.GetTasks)
     r.GET("/tasks/:id", controllers.GetTask)
     r.POST("/tasks", controllers.CreateTask)
