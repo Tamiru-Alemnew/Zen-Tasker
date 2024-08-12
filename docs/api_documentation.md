@@ -126,3 +126,53 @@
 
 
 
+#### **Authentication**
+- **Sign up**: `POST /register`
+
+  - **Request Body**:
+    ```json
+    {
+      "username": "example",
+      "password": "************"
+    }
+    ```
+  - **Response**: `201 Created`
+
+    ```json
+    {
+      "id": "00000000",
+      "username": "example",
+      "role": "admin"
+    }
+    ```
+
+- **Sign in**: `POST /login`
+
+  - **Request Body**:
+    ```json
+    {
+      "username": "example",
+      "password": "************"
+    }
+    ```
+  - **Response**: `200 OK`
+
+    ```json
+    {
+      "id": "00000000",
+      "username": "example",
+      "role": "admin"
+    }
+    ```
+- **Promote User**: `PATCH /promote/:id`
+
+  - **Path Parameters**:
+    - `id`: The ID of the user to promote.
+
+  - **Response**: `200 OK`
+
+    ```json
+      {
+          "message": "User promoted to admin successfully"
+      }
+    ```
