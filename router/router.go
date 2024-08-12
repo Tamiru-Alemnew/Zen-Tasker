@@ -2,16 +2,19 @@ package router
 
 import (
 	"github.com/Tamiru-Alemnew/task-manager/controllers"
+	"github.com/Tamiru-Alemnew/task-manager/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
     r := gin.Default()
-    r.POST("/signup" , controllers.SignUp)
-    r.GET("/tasks", controllers.GetTasks)
-    r.GET("/tasks/:id", controllers.GetTask)
-    r.POST("/tasks", controllers.CreateTask)
-    r.PUT("/tasks/:id", controllers.UpdateTask)
-    r.DELETE("/tasks/:id", controllers.DeleteTask)
+    r.POST("/register" , controllers.SignUp)
+    r.POST("/login" , controllers.Login)
+    
+    r.GET("/tasks",middleware.AuthMiddleware(), controllers.GetTasks)
+    r.GET("/tasks/:id",middleware.AuthMiddleware(), controllers.GetTask)
+    r.POST("/tasks", middleware.AuthMiddleware(),controllers.CreateTask)
+    r.PUT("/tasks/:id", middleware.AuthMiddleware() , controllers.UpdateTask)
+    r.DELETE("/tasks/:id", middleware.AuthMiddleware(),controllers.DeleteTask)
     return r
 }

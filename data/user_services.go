@@ -3,6 +3,8 @@ package data
 import (
 	"context"
 	"errors"
+	"os"
+
 	// "log"
 	// "net/http"
 	"time"
@@ -14,8 +16,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var jwtKey = []byte("jwt_secret_key")
-
+var jwtKey = os.Getenv("JWT_SECRET")
 
 func UserRegistration(user models.User) error {
 
@@ -36,6 +37,18 @@ func UserRegistration(user models.User) error {
     }
 
     user.Password = string(hashedPassword)
+
+    count , err := UserCollection.CountDocuments(context.TODO(), bson.D{})
+
+    if err != nil {
+        return  errors.New("internal server error")
+    }
+
+    if count == 0 {
+        user.Role = "admin"
+    }else {
+        user.Role = "user"
+    }
 
     _, err = UserCollection.InsertOne(context.TODO(), user)
     if err != nil {

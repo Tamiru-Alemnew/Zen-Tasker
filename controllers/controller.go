@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"go/token"
 	"net/http"
 	"strconv"
 
