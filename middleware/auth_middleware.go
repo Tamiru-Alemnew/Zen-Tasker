@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"strings"
 	"time"
-    "os"
 
+	"github.com/Tamiru-Alemnew/task-manager/data"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
-var jwtSecret = os.Getenv("JWT_SECRET")
 
 func parseToken(authHeader string) ( jwt.MapClaims, error) {
     authParts := strings.Split(authHeader, " ")
@@ -22,12 +21,13 @@ func parseToken(authHeader string) ( jwt.MapClaims, error) {
         if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
             return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
         }
-        return jwtSecret, nil
+        return data.JwtKey, nil
     })
 
     if err != nil || !token.Valid {
-        return  nil, fmt.Errorf("invalid JWT")
+        return nil, fmt.Errorf("invalid JWT")
     }
+
 
     claims, ok := token.Claims.(jwt.MapClaims)
     if !ok {

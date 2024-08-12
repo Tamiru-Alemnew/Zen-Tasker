@@ -18,10 +18,17 @@ func main() {
     }
 
     mongoURI := os.Getenv("MONGODB_URI")
+
     if mongoURI == "" {
         log.Fatalf("MONGODB_URI not set in .env file")
     }
 
+    jwtKey := os.Getenv("JWT_SECRET")
+        if jwtKey == "" {
+            log.Fatalf("JWT secret key is not set")
+        }
+    
+    data.SetJWTKey([]byte(jwtKey))
     data.InitMongoDB(mongoURI)
 
     // close the connection when the main function ends

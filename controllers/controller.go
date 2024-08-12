@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	// "errors"
 	"net/http"
 	"strconv"
 
@@ -84,37 +85,62 @@ func DeleteTask(c *gin.Context) {
 
 func SignUp(c *gin.Context){
     var user models.User
-
+   
     if err := c.ShouldBindBodyWithJSON(&user) ; err!= nil {
         c.JSON(http.StatusBadRequest , err)
         return 
     }
-
-    err := data.UserRegistration(user)
-
+    user , err := data.UserRegistration(user)
     if err != nil {
         c.JSON(http.StatusBadRequest , err)
         return 
     }
 
-    c.JSON(201, gin.H{"message": "Signup successful"})
+    c.JSON(201, gin.H{"message": "Signup successful" , "user" : gin.H{
+        "id":user.ID,
+        "username":user.Username,
+        "role":user.Role,
+    }})
 }
 
-func Login(c *gin.Context){
+
+func Login(c *gin.Context) {
     var user models.User
 
     err := c.ShouldBindJSON(&user)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON payload", "details": err.Error()})
+        return
+    }
 
-     if err != nil {
-        c.JSON(http.StatusBadRequest , err)
-        return 
+    user , jwtToken, err := data.UserCredentialValidation(user)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid credentials", "details": err.Error()})
+        return
+    }
+
+    c.JSON(200,  gin.H{"message": "User logged in successfully", 
+            "user": gin.H{
+            "id":    user.ID,
+            "username":  user.Username,
+            "role":user.Role,
+            }, 
+            "token": jwtToken })
+}
+
+func Promote(c *gin.Context){
+    id, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})
+        return
+    }
+
+    err = data.PromoteUser(id)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
     }
     
-    jwtToken , err := data.UserCredentialValidation(user)
-     if err != nil {
-        c.JSON(http.StatusBadRequest , err)
-        return 
-    }
+    c.JSON(http.StatusOK, gin.H{"message": "User promoted to admin successfully"})
 
-    c.JSON(200, gin.H{"message": "User logged in successfully", "token": jwtToken})
 }
