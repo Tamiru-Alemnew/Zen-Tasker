@@ -1,40 +1,75 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
-	"github.com/Tamiru-Alemnew/task-manager/data"
-	"github.com/Tamiru-Alemnew/task-manager/router"
+	"github.com/Tamiru-Alemnew/task-manager/Delivery/router"
+	"github.com/Tamiru-Alemnew/task-manager/Repositories"
+	usecases "github.com/Tamiru-Alemnew/task-manager/Usecases"
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+func InitMongoDB(mongoURI string) (*mongo.Client, error) {
+	clientOptions := options.Client().ApplyURI(mongoURI)
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
 func main() {
+	// Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
 
-   // Load environment variables from .env file
-    err := godotenv.Load()
-    if err != nil {
-        log.Fatalf("Error loading .env file")
-    }
+	mongoURI := os.Getenv("MONGODB_URI")
+	if mongoURI == "" {
+		log.Fatalf("MONGODB_URI not set in .env file")
+	}
 
-    mongoURI := os.Getenv("MONGODB_URI")
+	jwtKey := os.Getenv("JWT_SECRET")
+	if jwtKey == "" {
+		log.Fatalf("JWT secret key is not set")
+	}
 
-    if mongoURI == "" {
-        log.Fatalf("MONGODB_URI not set in .env file")
-    }
+	// Initialize MongoDB client
+	client, err := InitMongoDB(mongoURI)
+	if err != nil {
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			log.Fatalf("Failed to disconnect MongoDB: %v", err)
+		}
+	}()
 
-    jwtKey := os.Getenv("JWT_SECRET")
-        if jwtKey == "" {
-            log.Fatalf("JWT secret key is not set")
-        }
-    
-    data.SetJWTKey([]byte(jwtKey))
-    data.InitMongoDB(mongoURI)
+	// Initialize MongoDB collections
+	taskCollection := client.Database("taskmanager")
+	userCollection := client.Database("taskmanager")
 
-    // close the connection when the main function ends
-    defer data.DisconnectMongoDB()
+	// Initialize repositories
+	taskRepo := repositories.NewTaskRepository(taskCollection , "tasks")
+	userRepo := repositories.NewUserRepository(userCollection , "users")
 
-    r := router.SetupRouter()
+	// Initialize usecases
+	taskUsecase := usecases.NewTaskUsecase(taskRepo)
+	userUsecase := usecases.NewUserUsecase(userRepo)
 
-    r.Run(":8080") 
+	// Setup router with dependencies injected
+	r := router.SetupRouter(taskUsecase, userUsecase)
+
+	r.Run(":8080")
 }
