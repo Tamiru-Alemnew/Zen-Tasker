@@ -6,11 +6,13 @@ import (
 	"os"
 
 	"github.com/Tamiru-Alemnew/task-manager/Delivery/router"
+	infrastructure "github.com/Tamiru-Alemnew/task-manager/Infrastructures"
 	"github.com/Tamiru-Alemnew/task-manager/Repositories"
 	usecases "github.com/Tamiru-Alemnew/task-manager/Usecases"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func InitMongoDB(mongoURI string) (*mongo.Client, error) {
@@ -30,7 +32,7 @@ func InitMongoDB(mongoURI string) (*mongo.Client, error) {
 
 func main() {
 	// Load environment variables from .env file
-	err := godotenv.Load()
+	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
@@ -66,8 +68,8 @@ func main() {
 
 	// Initialize usecases
 	taskUsecase := usecases.NewTaskUsecase(taskRepo)
-	userUsecase := usecases.NewUserUsecase(userRepo)
-
+	userUsecase := usecases.NewUserUsecase(userRepo , infrastructure.NewPasswordService(bcrypt.DefaultCost) , infrastructure.NewJWTService(os.Getenv("JWT_SECRET")))
+	
 	// Setup router with dependencies injected
 	r := router.SetupRouter(taskUsecase, userUsecase)
 
