@@ -43,6 +43,31 @@ func (ur *userRepository) Create(ctx context.Context, user *domain.User) error {
 	return err
 }
 
+func (ur *userRepository) GetAll(ctx context.Context) ([]domain.User, error) {
+    collection := ur.database.Collection(ur.collection)
+    var users []domain.User
+
+    cursor, err := collection.Find(ctx, bson.M{})
+    if err != nil {
+        return nil, err
+    }
+    defer cursor.Close(ctx)
+
+    for cursor.Next(ctx) {
+        var user domain.User
+        if err := cursor.Decode(&user); err != nil {
+            return nil, err
+        }
+        users = append(users, user)
+    }
+
+    if err := cursor.Err(); err != nil {
+        return nil, err
+    }
+
+    return users, nil
+}
+
 func (ur *userRepository) Promote(ctx context.Context, id int) error {
 	collection := ur.database.Collection(ur.collection)
 	filter := bson.M{"id": id}
@@ -60,3 +85,4 @@ func (ur *userRepository) Promote(ctx context.Context, id int) error {
 
 	return nil
 }
+

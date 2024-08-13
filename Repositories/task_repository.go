@@ -6,7 +6,6 @@ import (
 
 	"github.com/Tamiru-Alemnew/task-manager/Domain"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/protobuf/internal/errors"
 )
@@ -25,7 +24,6 @@ func NewTaskRepository(db mongo.Database , collection string) domain.TaskReposit
 
 func(tr *taskRepository) Create(c context.Context, task *domain.Task) error{
 	collection := tr.database.Collection(tr.collection)
-
 	_ , err := collection.InsertOne(c , task)
 
 	return err
@@ -36,11 +34,8 @@ func(tr *taskRepository) Update(c context.Context ,id int , task *domain.Task) e
 	filter := bson.M{"id": id}
 	update := bson.D{{Key: "$set", Value: task}}
 
-	result , err := collection.UpdateOne(c , filter , update)
+	_ , err := collection.UpdateOne(c , filter , update)
 
-	if result.MatchedCount == 0 {
-		return errors.New("no task associated with this id")
-	}
 	return err
 	
 }
@@ -48,11 +43,8 @@ func(tr *taskRepository) Update(c context.Context ,id int , task *domain.Task) e
 func(tr *taskRepository) Delete (c context.Context , id int ) error{
 	collection := tr.database.Collection(tr.collection)
 	filter := bson.M{"id" : id}
-	result , err := collection.DeleteOne( c , filter)
+	_ , err := collection.DeleteOne( c , filter)
 
-	if result.DeletedCount == 0 {
-        return errors.New("task not found")
-    }
 	return err
 }
 

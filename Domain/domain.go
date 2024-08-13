@@ -2,8 +2,6 @@ package domain
 
 import (
 	"context"
-
-	domain "github.com/Tamiru-Alemnew/task-manager/Domain"
 )
 
 type Task struct {
@@ -22,6 +20,15 @@ type User struct {
     Role     string             `bson:"role" json:"role"`
 }
 
+type PasswordService interface {
+	HashPassword(password string) (string, error)
+	ComparePassword(hashedPassword, password string) error
+}
+
+type JWTService interface {
+	GenerateToken(userID int, username, role string) (string, error)
+    ParseToken(tokenString string) (*TokenClaims, error)
+}
 
 // TaskRepository defines the interface for task-related data operations.
 type TaskRepository interface {
@@ -32,8 +39,31 @@ type TaskRepository interface {
     GetByID(ctx context.Context, id int) (*Task, error)
 }
 
+type TaskUsecase interface {
+	Create(ctx context.Context, task *Task) (*Task, error)
+	Update(ctx context.Context, id int, task *Task) (*Task, error)
+	GetAll(ctx context.Context) ([]Task, error)
+	GetByID(ctx context.Context, id int) (*Task, error)
+	Delete(ctx context.Context, id int) error
+}
+
 type UserRepository interface {
     Create(ctx context.Context, user *User) error
     FindByUsername(ctx context.Context, username string) (*User, error)
+    GetAll(ctx context.Context) ([]User, error)
     Promote(ctx context.Context, id int) error
+}
+
+type UserUsecase interface {
+    SignUp(ctx context.Context, user *User) (*User , error)
+    Login(ctx context.Context , username , pasword string) (*User, string ,error)
+    Promote(ctx context.Context, id int) error
+}
+
+
+type TokenClaims struct {
+    UserID   string `json:"user_id"`
+    Username string `json:"username"`
+    Role     string `json:"role"`
+    Exp      int64  `json:"exp"` 
 }
