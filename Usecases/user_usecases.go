@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/Tamiru-Alemnew/task-manager/Domain"
-	"github.com/Tamiru-Alemnew/task-manager/Infrastructure"
 )
 
 type userUsecase struct {

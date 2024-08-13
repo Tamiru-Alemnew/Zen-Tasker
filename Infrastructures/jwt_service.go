@@ -18,7 +18,7 @@ func NewJWTService(secretKey string) domain.JWTService {
 }
 
 func (s *jwtService) GenerateToken(userID int, username, role string) (string, error) {
-    claims := domain.TokenClaims{
+    claims := &domain.TokenClaims{
         UserID:  string(userID),
         Username: username,
         Role:     role,

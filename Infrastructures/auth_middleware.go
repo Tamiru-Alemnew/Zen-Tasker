@@ -1,11 +1,11 @@
-package middleware
+package infrastructure
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
-	"github.com/Tamiru-Alemnew/task-manager/data"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +21,7 @@ func parseToken(authHeader string) ( jwt.MapClaims, error) {
         if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
             return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
         }
-        return data.JwtKey, nil
+        return os.Getenv("JWT_SECRE"), nil
     })
 
     if err != nil || !token.Valid {

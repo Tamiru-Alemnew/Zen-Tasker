@@ -7,11 +7,10 @@ import (
 	"github.com/Tamiru-Alemnew/task-manager/Domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"google.golang.org/protobuf/internal/errors"
 )
 
 type taskRepository struct{
-	database mongo.Database
+	database *mongo.Database
 	collection string
 }
 
