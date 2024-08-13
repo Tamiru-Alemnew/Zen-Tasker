@@ -67,3 +67,10 @@ type TokenClaims struct {
     Role     string `json:"role"`
     Exp      int64  `json:"exp"` 
 }
+
+
+type LoginRequest struct {
+    Username string `json:"username"`
+    Password string `json:"password"`
+}
+

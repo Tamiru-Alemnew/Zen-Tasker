@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/Tamiru-Alemnew/task-manager/controllers"
-	"github.com/Tamiru-Alemnew/task-manager/middleware"
+	"github.com/Tamiru-Alemnew/task-manager/Delivery/controllers"
+	middleware "github.com/Tamiru-Alemnew/task-manager/Infrastructures"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +11,7 @@ func SetupRouter() *gin.Engine {
     r.POST("/register" , controllers.SignUp)
     r.POST("/login" , controllers.Login)
 
-    r.GET("/tasks",middleware.AuthMiddleware(), controllers.GetTasks)
+    r.GET("/tasks",middleware.AuthMiddleware(), controllers)
     r.GET("/tasks/:id",middleware.AuthMiddleware(), controllers.GetTask)
     
     r.PATCH("promote/:id", middleware.AuthMiddleware() , middleware.RoleAuthorizationMiddleware("admin") , controllers.Promote)

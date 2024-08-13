@@ -1,9 +1,10 @@
 package infrastructure
 
 import (
-    "github.com/dgrijalva/jwt-go"
-    "time"
-    "yourapp/domain"
+	"time"
+
+	"github.com/Tamiru-Alemnew/task-manager/Domain"
+	"github.com/dgrijalva/jwt-go"
 )
 
 type jwtService struct {
@@ -16,9 +17,9 @@ func NewJWTService(secretKey string) domain.JWTService {
     }
 }
 
-func (s *jwtService) GenerateToken(userID, username, role string) (string, error) {
+func (s *jwtService) GenerateToken(userID int, username, role string) (string, error) {
     claims := domain.TokenClaims{
-        UserID:   userID,
+        UserID:  string(userID),
         Username: username,
         Role:     role,
         Exp:      time.Now().Add(24 * time.Hour).Unix(),

@@ -1,8 +1,9 @@
 package infrastructure
 
 import (
-    "golang.org/x/crypto/bcrypt"
-    "yourapp/domain"
+	
+	"github.com/Tamiru-Alemnew/task-manager/Domain"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type passwordService struct {
