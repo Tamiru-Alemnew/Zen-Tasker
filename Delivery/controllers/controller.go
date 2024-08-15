@@ -9,28 +9,28 @@ import (
 )
 
 type TaskController struct {
-    taskUsecase domain.TaskUsecase
+    TaskUsecase domain.TaskUsecase
 }
 type UserController struct {
-    userUsecase domain.UserUsecase
+    UserUsecase domain.UserUsecase
 }
 
 
 func NewTaskController(tc domain.TaskUsecase) *TaskController {
     return &TaskController{
-        taskUsecase: tc,
+        TaskUsecase: tc,
     }
 }
 
 func NewUserController(uc domain.UserUsecase) *UserController {
     return &UserController{
-        userUsecase: uc,
+        UserUsecase: uc,
     }
 }
 
 
 func (ctrl *TaskController) GetAllTasks(c *gin.Context) {
-    tasks, err := ctrl.taskUsecase.GetAll(c.Request.Context())
+    tasks, err := ctrl.TaskUsecase.GetAll(c.Request.Context())
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -46,7 +46,7 @@ func (ctrl *TaskController) CreateTask(c *gin.Context) {
         return
     }
 
-    createdTask, err := ctrl.taskUsecase.Create(c.Request.Context(), &task)
+    createdTask, err := ctrl.TaskUsecase.Create(c.Request.Context(), &task)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -62,7 +62,7 @@ func (ctrl *TaskController) GetTaskByID(c *gin.Context) {
         return
     }
 
-    task, err := ctrl.taskUsecase.GetByID(c.Request.Context(), id)
+    task, err := ctrl.TaskUsecase.GetByID(c.Request.Context(), id)
     if err != nil {
         c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
         return
@@ -84,7 +84,7 @@ func (ctrl *TaskController) UpdateTask(c *gin.Context) {
         return
     }
 
-    updatedTask, err := ctrl.taskUsecase.Update(c.Request.Context(), id, &task)
+    updatedTask, err := ctrl.TaskUsecase.Update(c.Request.Context(), id, &task)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -101,7 +101,7 @@ func (ctrl *TaskController) DeleteTask(c *gin.Context) {
         return
     }
 
-    err = ctrl.taskUsecase.Delete(c.Request.Context(), id)
+    err = ctrl.TaskUsecase.Delete(c.Request.Context(), id)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -117,7 +117,7 @@ func (ctrl *UserController) SignUp(c *gin.Context) {
         return
     }
 
-    createdUser, err := ctrl.userUsecase.SignUp(c.Request.Context(), &user)
+    createdUser, err := ctrl.UserUsecase.SignUp(c.Request.Context(), &user)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -133,7 +133,7 @@ func (ctrl *UserController) Login(c *gin.Context) {
         return
     }
 
-    loggedInUser, token, err := ctrl.userUsecase.Login(c.Request.Context(), user.Username, user.Password)
+    loggedInUser, token, err := ctrl.UserUsecase.Login(c.Request.Context(), user.Username, user.Password)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -149,7 +149,7 @@ func (ctrl *UserController) Promote(c *gin.Context) {
         return
     }
 
-    err = ctrl.userUsecase.Promote(c.Request.Context(), id)
+    err = ctrl.UserUsecase.Promote(c.Request.Context(), id)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
