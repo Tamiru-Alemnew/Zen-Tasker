@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/Tamiru-Alemnew/task-manager/Domain"
@@ -19,7 +20,7 @@ func NewJWTService(secretKey string) domain.JWTService {
 
 func (s *jwtService) GenerateToken(userID int, username, role string) (string, error) {
     claims := &domain.TokenClaims{
-        UserID:  string(userID),
+        UserID:  strconv.Itoa(userID),
         Username: username,
         Role:     role,
         Exp:      time.Now().Add(24 * time.Hour).Unix(),

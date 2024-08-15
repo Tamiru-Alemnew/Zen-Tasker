@@ -3,26 +3,27 @@ package usecases
 import (
 	"context"
 	"errors"
-	"github.com/Tamiru-Alemnew/task-manager/Domain"
+
+	domain "github.com/Tamiru-Alemnew/task-manager/Domain"
 )
 
-type userUsecase struct {
-	userRepo        domain.UserRepository
+type UserUsecase struct {
+	UserRepo        domain.UserRepository
 	passwordService domain.PasswordService
 	jwtService      domain.JWTService
 }
 
 func NewUserUsecase(userRepo domain.UserRepository, passwordService domain.PasswordService, jwtService domain.JWTService) domain.UserUsecase {
-	return &userUsecase{
-		userRepo:        userRepo,
+	return &UserUsecase{
+		UserRepo:        userRepo,
 		passwordService: passwordService,
 		jwtService:      jwtService,
 	}
 }
 
-func (uc *userUsecase) SignUp(ctx context.Context, newUser *domain.User) (*domain.User, error) {
+func (uc *UserUsecase) SignUp(ctx context.Context, newUser *domain.User) (*domain.User, error) {
 	// Check if the username is already taken
-	existingUser, err := uc.userRepo.FindByUsername(ctx, newUser.Username)
+	existingUser, err := uc.UserRepo.FindByUsername(ctx, newUser.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +39,7 @@ func (uc *userUsecase) SignUp(ctx context.Context, newUser *domain.User) (*domai
 	newUser.Password = hashedPassword
 
 	// Assign role based on the number of existing users
-	allUsers, err := uc.userRepo.GetAll(ctx)
+	allUsers, err := uc.UserRepo.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +50,7 @@ func (uc *userUsecase) SignUp(ctx context.Context, newUser *domain.User) (*domai
 	}
 
 	// Save the new user to the repository
-	err = uc.userRepo.Create(ctx, newUser)
+	err = uc.UserRepo.Create(ctx, newUser)
 	if err != nil {
 		return nil, err
 	}
@@ -57,9 +58,9 @@ func (uc *userUsecase) SignUp(ctx context.Context, newUser *domain.User) (*domai
 	return newUser, nil
 }
 
-func (uc *userUsecase) Login(ctx context.Context, username string, password string) (*domain.User , string, error) {
+func (uc *UserUsecase) Login(ctx context.Context, username string, password string) (*domain.User , string, error) {
 	// Find the user by username
-	user, err := uc.userRepo.FindByUsername(ctx, username)
+	user, err := uc.UserRepo.FindByUsername(ctx, username)
 	if err != nil {
 		return  nil, "", err
 	}
@@ -82,7 +83,7 @@ func (uc *userUsecase) Login(ctx context.Context, username string, password stri
 	return user , token, nil
 }
 
-func (uc *userUsecase)Promote(ctx context.Context , id int ) error{
-	err := uc.userRepo.Promote(ctx, id)
+func (uc *UserUsecase)Promote(ctx context.Context , id int ) error{
+	err := uc.UserRepo.Promote(ctx, id)
 	return err
 }

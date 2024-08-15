@@ -4,23 +4,23 @@ import (
 	"context"
 	"errors"
 
-	"github.com/Tamiru-Alemnew/task-manager/Domain"
+	domain "github.com/Tamiru-Alemnew/task-manager/Domain"
 )
 
-type taskUsecase struct {
-	taskRepository domain.TaskRepository
+type TaskUsecase struct {
+	TaskRepository domain.TaskRepository
 }
 
 // NewTaskUsecase creates a new instance of taskUsecase
 func NewTaskUsecase(taskRepository domain.TaskRepository) domain.TaskUsecase {
-	return &taskUsecase{
-		taskRepository: taskRepository,
+	return &TaskUsecase{
+		TaskRepository: taskRepository,
 	}
 }
 
 // GetAll retrieves all tasks from the repository
-func (tc *taskUsecase) GetAll(ctx context.Context) ([]domain.Task, error) {
-	tasks, err := tc.taskRepository.GetAll(ctx)
+func (tc *TaskUsecase) GetAll(ctx context.Context) ([]domain.Task, error) {
+	tasks, err := tc.TaskRepository.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -28,8 +28,8 @@ func (tc *taskUsecase) GetAll(ctx context.Context) ([]domain.Task, error) {
 }
 
 // GetByID retrieves a task by its ID from the repository
-func (tc *taskUsecase) GetByID(ctx context.Context, id int) (*domain.Task, error) {
-	task, err := tc.taskRepository.GetByID(ctx, id)
+func (tc *TaskUsecase) GetByID(ctx context.Context, id int) (*domain.Task, error) {
+	task, err := tc.TaskRepository.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +40,8 @@ func (tc *taskUsecase) GetByID(ctx context.Context, id int) (*domain.Task, error
 }
 
 // Create creates a new task and stores it in the repository
-func (tc *taskUsecase) Create(ctx context.Context, task *domain.Task) (*domain.Task, error) {
-	err := tc.taskRepository.Create(ctx, task)
+func (tc *TaskUsecase) Create(ctx context.Context, task *domain.Task) (*domain.Task, error) {
+	err := tc.TaskRepository.Create(ctx, task)
 	if err != nil {
 		return nil, err
 	}
@@ -49,9 +49,9 @@ func (tc *taskUsecase) Create(ctx context.Context, task *domain.Task) (*domain.T
 }
 
 // Update updates an existing task in the repository
-func (tc *taskUsecase) Update(ctx context.Context, id int, task *domain.Task) (*domain.Task, error) {
+func (tc *TaskUsecase) Update(ctx context.Context, id int, task *domain.Task) (*domain.Task, error) {
 	// First, find the task to ensure it exists
-	existingTask, err := tc.taskRepository.GetByID(ctx, id)
+	existingTask, err := tc.TaskRepository.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (tc *taskUsecase) Update(ctx context.Context, id int, task *domain.Task) (*
 	}
 
 	// Perform the update
-	err = tc.taskRepository.Update(ctx, id, task)
+	err = tc.TaskRepository.Update(ctx, id, task)
 	if err != nil {
 		return nil, err
 	}
@@ -68,9 +68,9 @@ func (tc *taskUsecase) Update(ctx context.Context, id int, task *domain.Task) (*
 	return task, nil
 }
 
-func (tc *taskUsecase) Delete(ctx context.Context, id int) error {
+func (tc *TaskUsecase) Delete(ctx context.Context, id int) error {
 
-	existingTask, err := tc.taskRepository.GetByID(ctx, id)
+	existingTask, err := tc.TaskRepository.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (tc *taskUsecase) Delete(ctx context.Context, id int) error {
 		return errors.New("task not found")
 	}
 
-	err = tc.taskRepository.Delete(ctx, id)
+	err = tc.TaskRepository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}

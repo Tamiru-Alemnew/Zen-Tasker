@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func parseToken(authHeader string) ( jwt.MapClaims, error) {
+func ParseToken(authHeader string) ( jwt.MapClaims, error) {
     authParts := strings.Split(authHeader, " ")
 
     if len(authParts) != 2 || strings.ToLower(authParts[0]) != "bearer" {
@@ -21,7 +21,7 @@ func parseToken(authHeader string) ( jwt.MapClaims, error) {
         if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
             return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
         }
-        return os.Getenv("JWT_SECRE"), nil
+        return os.Getenv("JWT_SECRET"), nil
     })
 
     if err != nil || !token.Valid {
@@ -56,7 +56,7 @@ func AuthMiddleware() gin.HandlerFunc {
             return
         }
 
-        claims , err := parseToken(authHeader)
+        claims , err := ParseToken(authHeader)
 
         if err != nil {
             c.JSON(401, gin.H{"error": err.Error()})

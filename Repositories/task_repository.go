@@ -4,31 +4,31 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Tamiru-Alemnew/task-manager/Domain"
+	domain "github.com/Tamiru-Alemnew/task-manager/Domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type taskRepository struct{
+type TaskRepository struct{
 	database *mongo.Database
 	collection string
 }
 
 func NewTaskRepository(db *mongo.Database , collection string) domain.TaskRepository{
-	return &taskRepository{
+	return &TaskRepository{
 		database: db,
 		collection: collection,
 	}
 }
 
-func(tr *taskRepository) Create(c context.Context, task *domain.Task) error{
+func(tr *TaskRepository) Create(c context.Context, task *domain.Task) error{
 	collection := tr.database.Collection(tr.collection)
 	_ , err := collection.InsertOne(c , task)
 
 	return err
 }
 
-func(tr *taskRepository) Update(c context.Context ,id int , task *domain.Task) error{
+func(tr *TaskRepository) Update(c context.Context ,id int , task *domain.Task) error{
 	collection := tr.database.Collection(tr.collection)
 	filter := bson.M{"id": id}
 	update := bson.D{{Key: "$set", Value: task}}
@@ -39,7 +39,7 @@ func(tr *taskRepository) Update(c context.Context ,id int , task *domain.Task) e
 	
 }
 
-func(tr *taskRepository) Delete (c context.Context , id int ) error{
+func(tr *TaskRepository) Delete (c context.Context , id int ) error{
 	collection := tr.database.Collection(tr.collection)
 	filter := bson.M{"id" : id}
 	_ , err := collection.DeleteOne( c , filter)
@@ -47,7 +47,7 @@ func(tr *taskRepository) Delete (c context.Context , id int ) error{
 	return err
 }
 
-func (tr *taskRepository)GetAll(c context.Context)([]domain.Task , error){
+func (tr *TaskRepository)GetAll(c context.Context)([]domain.Task , error){
 	var tasks []domain.Task
 	collection := tr.database.Collection(tr.collection)
 
@@ -74,7 +74,7 @@ func (tr *taskRepository)GetAll(c context.Context)([]domain.Task , error){
 
 }
 
-func (tr *taskRepository) GetByID (c context.Context, id int )(*domain.Task , error){
+func (tr *TaskRepository) GetByID (c context.Context, id int )(*domain.Task , error){
 	var task domain.Task
 
 	collection := tr.database.Collection(tr.collection)
