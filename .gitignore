@@ -5,6 +5,7 @@
 
 # Executables
 *.exe
+
 *.exe~
 *.dll
 *.so
@@ -21,3 +22,27 @@
 # Dependency directories
 /vendor/
 /go.sum
+
+*.out
+
+# Go binary
+*.exe
+*.test
+
+# Go build cache and test cache
+*.testcache
+*.cache
+
+# Go coverage profile
+*.coverprofile
+
+# Go generated files
+*_gen.go
+
+# Vendor directory
+/vendor/
+
+# IDE specific files
+.idea/
+.vscode/
+
