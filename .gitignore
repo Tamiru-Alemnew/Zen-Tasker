@@ -46,3 +46,6 @@
 .idea/
 .vscode/
 
+# Environment files
+.env
+.envv
