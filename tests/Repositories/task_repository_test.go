@@ -1,173 +1,148 @@
 package tests
 
-// import (
-// 	"context"
-// 	"log"
-// 	"os"
+import (
+	"context"
+	"log"
+	"os"
+	"testing"
 
-// 	"testing"
-// 	"time"
+	domain "github.com/Tamiru-Alemnew/task-manager/Domain"
+	repositories "github.com/Tamiru-Alemnew/task-manager/Repositories"
+	"github.com/joho/godotenv"
+	"github.com/stretchr/testify/suite"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
 
-// 	domain "github.com/Tamiru-Alemnew/task-manager/Domain"
-// 	repositories "github.com/Tamiru-Alemnew/task-manager/Repositories"
-// 	"github.com/joho/godotenv"
-// 	"github.com/stretchr/testify/suite"
-// 	"go.mongodb.org/mongo-driver/bson"
-// 	"go.mongodb.org/mongo-driver/mongo"
-// 	"go.mongodb.org/mongo-driver/mongo/options"
-// )
+type TaskRepositorySuite struct {
+	suite.Suite
+	TaskRepository *repositories.TaskRepository
+	// collection     *mongo.Collection
+}
 
-// type taskRespositorySuite struct {
-// 	suite.Suite
-// 	TaskRepository *repositories.TaskRepository
-// 	collection     *mongo.Collection
-// }
+func (suite *TaskRepositorySuite) SetupSuite() {
+	mongoURI := os.Getenv("MONGODB_URI")
+	client, err := InitMongoDB(mongoURI)
+	if err != nil {
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
 
-// func (suite *taskRespositorySuite) SetupSuite() {
-// 	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_URI"))
-// 	client, connectionErr := mongo.Connect(context.TODO(), clientOptions)
-// 	if connectionErr != nil {
-// 		log.Fatalf("Error: %v", connectionErr.Error())
-// 	}
+	database := client.Database("taskmanager")
+	suite.TaskRepository = &repositories.TaskRepository{
+		Database:   database,
+		Collection: "tasks",
+	}
+}
 
-// 	databse := client.Database(os.Getenv("MONGO_URI"))
-// 	collection := Database("taskmanager")
-// 	collection.DeleteMany(context.TODO(), bson.D{{}})
-// 	suite.collection = collection
-// 	SetupTaskCollection(suite.collection)
-// 	suite.TaskRepository = &repositories.TaskRepository{Collection: collection}
-// }
+func (suite *TaskRepositorySuite) SetupTest() {
+	_, err := suite.TaskRepository.Database.Collection(suite.TaskRepository.Collection).DeleteMany(context.TODO(), bson.D{{}})
+	suite.NoError(err, "should delete all tasks before each test")
+}
 
-// func (suite *taskRespositorySuite) SetupTest() {
-// 	suite.TaskRepository.Collection.DeleteMany(context.TODO(), bson.D{{}})
-// }
+// Test GetAll when no tasks are added
+func (suite *TaskRepositorySuite) TestGetTasks_Empty() {
+	tasks, err := suite.TaskRepository.GetAll(context.TODO())
+	suite.NoError(err, "should fetch tasks without error")
+	suite.Equal(0, len(tasks), "length of slice returned should be 0 when no tasks are added")
+}
 
-// // Tests GetAllTasks without adding any
-// func (suite *taskRespositorySuite) TestGetTasks_Empty() {
-// 	tasks, err := suite.TaskRepository.GetAllTasks(context.TODO())
-// 	suite.NoError(err, "no error when fetching")
-// 	suite.Equal(0, len(tasks), "lenght of slice returned is 0 when no objects are added")
-// }
+// Test GetAll after adding two tasks
+func (suite *TaskRepositorySuite) TestGetTasks_WithAdds() {
+	task1 := domain.Task{
+		ID:          1,
+		Title:       "title1",
+		Description: "description 1",
+		DueDate:     "2021-07-01",
+		Status:      "pending",
+	}
 
-// // Tests GetAllTasks after adding two tasks
-// func (suite *taskRespositorySuite) TestGetTasks_WithAdds() {
-// 	task := domain.Task{
-// 		ID:         1,
-// 		Title:       "title",
-// 		Description: "description 1",
-// 		DueDate:     "2021-07-01",
-// 		Status:      "pending",
-// 	}
+	task2 := domain.Task{
+		ID:          2,
+		Title:       "title2",
+		Description: "description 2",
+		DueDate:     "2021-07-02",
+		Status:      "pending",
+	}
 
-// 	err := suite.TaskRepository.AddTask(context.TODO(), task)
-// 	suite.NoError(err, "no error when creating")
-// 	task.ID = 1
-// 	err = suite.TaskRepository.AddTask(context.TODO(), task)
-// 	suite.NoError(err, "no error when creating")
+	err := suite.TaskRepository.Create(context.TODO(), &task1)
+	suite.NoError(err, "should create first task without error")
+	err = suite.TaskRepository.Create(context.TODO(), &task2)
+	suite.NoError(err, "should create second task without error")
 
-// 	tasks, err := suite.TaskRepository.GetAllTasks(context.TODO())
-// 	suite.NoError(err, "no error when creating")
-// 	suite.Equal(2, len(tasks), "lenght of slice returned is 0 when no objects are added")
-// }
+	tasks, err := suite.TaskRepository.GetAll(context.TODO())
+	suite.NoError(err, "should fetch tasks without error")
+	suite.Equal(2, len(tasks), "length of slice returned should be 2 after adding tasks")
+}
 
-// // Test GetTaskById after adding a task
-// func (suite *taskRespositorySuite) TestGetByID() {
-// 	task := domain.Task{
-// 		ID:          1,
-// 		Title:       "title",
-// 		Description: "description 1",
-// 		DueDate:     "2021-07-01",
-// 		Status:      "pending",
-// 	}
 
-// 	err := suite.TaskRepository.AddTask(context.TODO(), task)
-// 	suite.NoError(err, "no error when creating")
-// 	foundTask, err := suite.TaskRepository.GetTaskByID(context.TODO(), task.ID)
-// 	suite.NoError(err, "no error when fetching")
-// 	suite.Equal(task.ID, foundTask.ID, "id of the two tasks match")
-// }
 
-// // Tests AddTask
-// func (suite *taskRespositorySuite) TestAddTask_Positive() {
-// 	task := domain.Task{
-// 		ID:          1,
-// 		Title:       "title",
-// 		Description: "description 1",
-// 		DueDate:     "2021-07-01",
-// 		Status:      "pending",
-// 	}
+// Test Create (AddTask)
+func (suite *TaskRepositorySuite) TestAddTask_Positive() {
+	task := domain.Task{
+		ID:          1,
+		Title:       "title",
+		Description: "description 1",
+		DueDate:     "2021-07-01",
+		Status:      "pending",
+	}
 
-// 	err := suite.TaskRepository.AddTask(context.TODO(), task)
-// 	suite.NoError(err, "no error when creating")
-// }
+	err := suite.TaskRepository.Create(context.TODO(), &task)
+	suite.NoError(err, "should create task without error")
+}
 
-// // Tests whether the second ID has been made unique in the DB
-// func (suite *taskRespositorySuite) TestAddTask_Negative() {
-// 	task := domain.Task{
-// 		ID:          1,
-// 		Title:       "title",
-// 		Description: "description 1",
-// 		DueDate:     "2021-07-01",
-// 		Status:      "pending",
-// 	}
+// Test Create (AddTask) with duplicate ID
 
-// 	err := suite.TaskRepository.AddTask(context.TODO(), task)
-// 	suite.NoError(err, "no error when creating")
-// 	err = suite.TaskRepository.AddTask(context.TODO(), task)
-// 	suite.Error(err, "error when creating an object with the same id")
-// }
+func (suite *TaskRepositorySuite) TestAddTask_DuplicateID() {
 
-// // Tests UpdateTask
-// func (suite *taskRespositorySuite) TestUpdateTask() {
-// 	task := domain.Task{
-// 		ID:          1,
-// 		Title:       "title",
-// 		Description: "description 1",
-// 		DueDate:     "2021-07-01",
-// 		Status:      "pending",
-// 	}
+	task := domain.Task{
+		ID:          1,
+		Title:       "title",
+		Description: "description 1",
+		DueDate:     "2021-07-01",
+		Status:      "pending",
+	}
 
-// 	taskUpdates := domain.Task{
-// 		Title:       "changed title",
-// 		Description: "changed description 2",
-// 		Status:      "completed",
-// 	}
+	err := suite.TaskRepository.Create(context.TODO(), &task)
+	suite.NoError(err, "should create task without error")
 
-// 	err := suite.TaskRepository.AddTask(context.TODO(), task)
-// 	suite.NoError(err, "no error when creating")
+	err = suite.TaskRepository.Create(context.TODO(), &task)
+	suite.Error(err, "should not create task with duplicate ID")
+}
 
-// 	updatedTask, err := suite.TaskRepository.UpdateTask(context.TODO(), task.ID, taskUpdates)
-// 	suite.NoError(err, "no error when updating")
+// get by id
 
-// 	suite.Equal(taskUpdates.Title, updatedTask.Title, "title updated successfully")
-// 	suite.Equal(taskUpdates.Description, updatedTask.Description, "description updated successfully")
-// 	suite.Equal(taskUpdates.Status, updatedTask.Status, "status updated successfully")
-// }
+func (suite *TaskRepositorySuite) TestGetByID_Negative() {
 
-// // test DeleteTask
-// func (suite *taskRespositorySuite) TestDeleteTask() {
-// 	task := domain.Task{
-// 		ID:         1,
-// 		Title:       "title",
-// 		Description: "description 1",
-// 		DueDate:     "2021-07-01",
-// 		Status:      "pending",
-// 	}
+	_, err := suite.TaskRepository.GetByID(context.TODO(), 200)
+	suite.Error(err, "sempty db should return error")
+	
+}
 
-// 	err := suite.TaskRepository.AddTask(context.TODO(), task)
-// 	suite.NoError(err, "no error when creating")
 
-// 	err = suite.TaskRepository.DeleteTask(context.TODO(), task.ID)
-// 	suite.NoError(err, "no error when deleting")
-// 	_, err = suite.TaskRepository.GetTaskByID(context.TODO(), task.ID)
-// 	suite.Error(err, "deleted task not found")
-// }
 
-// func TestTaskRepositorySuite(t *testing.T) {
-// 	err := godotenv.Load("../../.env")
-// 	if err != nil {
-// 		log.Fatalf("Error loading .env file")
-// 	}
+// Helper function to initialize MongoDB connection
+func InitMongoDB(mongoURI string) (*mongo.Client, error) {
+	clientOptions := options.Client().ApplyURI(mongoURI)
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		return nil, err
+	}
 
-// 	suite.Run(t, new(taskRespositorySuite))
-// }
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
+
+func TestTaskRepositorySuite(t *testing.T) {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	suite.Run(t, new(TaskRepositorySuite))
+}
