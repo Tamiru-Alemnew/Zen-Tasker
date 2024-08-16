@@ -70,7 +70,7 @@ func (ur *userRepository) GetAll(ctx context.Context) ([]domain.User, error) {
 
 func (ur *userRepository) Promote(ctx context.Context, id int) error {
 	collection := ur.database.Collection(ur.collection)
-	filter := bson.M{"id": id}
+	filter := bson.M{"_id": id}
 
 	// Update the user's role to admin
 	update := bson.M{"$set": bson.M{"role": "admin"}}

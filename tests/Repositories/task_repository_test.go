@@ -18,7 +18,6 @@ import (
 type TaskRepositorySuite struct {
 	suite.Suite
 	TaskRepository *repositories.TaskRepository
-	// collection     *mongo.Collection
 }
 
 func (suite *TaskRepositorySuite) SetupSuite() {
@@ -120,6 +119,75 @@ func (suite *TaskRepositorySuite) TestGetByID_Negative() {
 }
 
 
+// Test UpdateTask
+func (suite *TaskRepositorySuite) TestUpdateTask() {
+	task := domain.Task{
+		ID:          1,
+		Title:       "title",
+		Description: "description 1",
+		DueDate:     "2021-07-01",
+		Status:      "pending",
+	}
+
+	taskUpdates := domain.Task{
+		Title:       "changed title",
+		Description: "changed description 2",
+		Status:      "completed",
+	}
+
+	err := suite.TaskRepository.Create(context.TODO(), &task)
+	suite.NoError(err, "should create task without error")
+
+	err = suite.TaskRepository.Update(context.TODO(), task.ID, &taskUpdates)
+	suite.NoError(err, "should update task without error")
+
+	updatedTask, err := suite.TaskRepository.GetByID(context.TODO(), task.ID)
+	suite.NoError(err, "should fetch updated task by ID without error")
+	suite.Equal(taskUpdates.Title, updatedTask.Title, "title should be updated successfully")
+	suite.Equal(taskUpdates.Description, updatedTask.Description, "description should be updated successfully")
+	suite.Equal(taskUpdates.Status, updatedTask.Status, "status should be updated successfully")
+}
+
+// Test DeleteTask
+func (suite *TaskRepositorySuite) TestDeleteTask() {
+	task := domain.Task{
+		ID:          1,
+		Title:       "title",
+		Description: "description 1",
+		DueDate:     "2021-07-01",
+		Status:      "pending",
+	}
+
+	err := suite.TaskRepository.Create(context.TODO(), &task)
+	suite.NoError(err, "should create task without error")
+
+	err = suite.TaskRepository.Delete(context.TODO(), task.ID)
+	suite.NoError(err, "should delete task without error")
+
+	_, err = suite.TaskRepository.GetByID(context.TODO(), task.ID)
+	suite.Error(err, "should not find deleted task")
+}
+
+
+// Test GetByID after adding a task
+func (suite *TaskRepositorySuite) TestGetByID() {
+	task := domain.Task{
+		ID:          1,
+		Title:       "title",
+		Description: "description 1",
+		DueDate:     "2021-07-01",
+		Status:      "pending",
+	}
+
+	err := suite.TaskRepository.Create(context.TODO(), &task)
+	suite.NoError(err, "should create task without error")
+
+	foundTask, err := suite.TaskRepository.GetByID(context.TODO(), task.ID)
+	suite.NoError(err, "should fetch task by ID without error")
+	suite.Equal(task.ID, foundTask.ID, "IDs should match")
+
+
+}
 
 // Helper function to initialize MongoDB connection
 func InitMongoDB(mongoURI string) (*mongo.Client, error) {
