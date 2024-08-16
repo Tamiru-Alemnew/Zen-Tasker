@@ -176,3 +176,8 @@
           "message": "User promoted to admin successfully"
       }
     ```
+
+ 
+  ### postman Documentation
+  https://documenter.getpostman.com/view/32082781/2sA3s6E9iu
+
